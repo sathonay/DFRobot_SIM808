@@ -21,6 +21,7 @@ DFRobot_SIM808* DFRobot_SIM808::inst;
 char receivedStackIndex = 0;
 char receivedStack[130];
 const char *des = "$GPRMC";
+char *pin;
 
 //char *receivedStack="$GPRMC,165445.000,A,3110.8635,N,12133.4627,E,0.58,70.26,220916,,,A*57";
 
@@ -41,6 +42,10 @@ DFRobot_SIM808::DFRobot_SIM808(HardwareSerial *mySerial)
        sim808_init(mySerial, 0);
     }
 #endif
+
+void DFRobot_SIM808::setPin(char *newPin) {
+    pin = newPin;
+}
 
 bool DFRobot_SIM808::init(void)
 {
@@ -94,9 +99,14 @@ bool DFRobot_SIM808::checkSIMStatus(void)
     int count = 0;
     sim808_clean_buffer(gprsBuffer,32);
     while(count < 3) {
-        sim808_send_cmd("AT+CPIN?\r\n");
-        sim808_read_buffer(gprsBuffer,32,DEFAULT_TIMEOUT);
-        if((NULL != strstr(gprsBuffer,"+CPIN: READY"))) {
+        /*sim808_send_cmd("AT+CPIN=0250\r\n");        
+        sim808_read_buffer(gprsBuffer,32,DEFAULT_TIMEOUT);*/
+        char* request;
+        request= malloc(strlen("AT+CPIN=")+strlen(pin)+strlen("\r\n") + 1); 
+        strcpy(request, "AT+CPIN=" ); 
+        strcat(request, pin);
+        strcat(request, "\r\n");
+        if(!sim808_check_with_cmd(request, "+CPIN: READY\r\n", CMD)/*(NULL != strstr(gprsBuffer,"+CPIN: READY"))*/) {
             break;
         }
         count++;

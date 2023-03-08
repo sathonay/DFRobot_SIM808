@@ -85,6 +85,9 @@ public:
      */
     static DFRobot_SIM808* getInstance() { return inst; };
 
+
+    void setPin(char* pin);
+
     /**
      * @fn init
      * @brief initialize DFRobot_SIM808 module including SIM card check & signal strength
